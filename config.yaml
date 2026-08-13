@@ -43,6 +43,12 @@ required_skills:
 match_mode: "min_count"
 min_skill_matches: 2
 
+# Your daily application target. Purely informational — if fewer than this
+# many NEW jobs are found on a given day, the email says so, so you know to
+# widen required_skills/match_mode or add more companies. It cannot force
+# more real job postings to exist.
+min_daily_new_jobs: 10
+
 # Excel output filename (a dated copy is also kept for history)
 output_filename: "Data_Engineering_Jobs.xlsx"
 

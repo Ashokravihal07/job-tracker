@@ -1,13 +1,17 @@
 """
 Daily Data Engineering Job Tracker
 -----------------------------------
-1. Pulls jobs from the Adzuna API (legitimate, ToS-compliant job aggregator
-   that includes listings from Indeed and many other boards).
+1. Pulls jobs from TWO legitimate sources:
+   a) Adzuna API (broad aggregator, includes Indeed-sourced listings)
+   b) Direct company career-portal APIs (Greenhouse/Lever/Ashby/SmartRecruiters)
+      for companies listed in companies.yaml
 2. Filters jobs by your required skill set.
-3. Compares each job description against your resume to find missing
+3. Skips any job you've already been sent before (data/seen_jobs.json).
+4. Compares each new job description against your resume to find missing
    skills/phrases.
-4. Writes results to an Excel file.
-5. Emails the Excel file to you.
+5. Writes results to an Excel file.
+6. Emails the Excel file to you, and updates data/seen_jobs.json so tomorrow's
+   run won't repeat today's jobs.
 
 Run manually:      python main.py
 Run on schedule:    see .github/workflows/daily-job-update.yml
@@ -22,6 +26,7 @@ Required environment variables (set as GitHub Secrets, or in a local .env):
 
 import os
 import re
+import json
 import sys
 import smtplib
 import datetime
@@ -33,17 +38,22 @@ import requests
 import pandas as pd
 import pdfplumber
 
+from ats_sources import fetch_all_companies
+
 HERE = Path(__file__).parent
 CONFIG_PATH = HERE / "config.yaml"
+COMPANIES_PATH = HERE / "companies.yaml"
+SEEN_JOBS_PATH = HERE / "data" / "seen_jobs.json"
+SKIPPED_LOG_PATH = HERE / "data" / "skipped_companies.txt"
+SEEN_JOBS_RETENTION_DAYS = 90
 
 
-def load_config():
-    with open(CONFIG_PATH, "r") as f:
+def load_yaml(path):
+    with open(path, "r") as f:
         return yaml.safe_load(f)
 
 
 def fetch_adzuna_jobs(app_id, app_key, keyword, country, city, results):
-    """Query Adzuna's job search API. Docs: https://developer.adzuna.com/docs/search"""
     url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1"
     params = {
         "app_id": app_id,
@@ -73,7 +83,7 @@ def fetch_adzuna_jobs(app_id, app_key, keyword, country, city, results):
     return jobs
 
 
-def collect_all_jobs(config, app_id, app_key):
+def collect_adzuna_jobs(config, app_id, app_key):
     all_jobs = []
     for keyword in config["search_keywords"]:
         for loc in config["locations"]:
@@ -83,19 +93,20 @@ def collect_all_jobs(config, app_id, app_key):
                 config.get("results_per_search", 20),
             )
             all_jobs.extend(jobs)
+    return all_jobs
 
-    # de-duplicate by job URL
+
+def dedupe_by_url(jobs):
     seen = set()
-    unique_jobs = []
-    for j in all_jobs:
+    unique = []
+    for j in jobs:
         if j["url"] and j["url"] not in seen:
             seen.add(j["url"])
-            unique_jobs.append(j)
-    return unique_jobs
+            unique.append(j)
+    return unique
 
 
 def skill_found_in_text(skill, text):
-    """Whole-word, case-insensitive match so 'R' doesn't match inside 'AWS'."""
     pattern = r"(?<![A-Za-z0-9])" + re.escape(skill) + r"(?![A-Za-z0-9])"
     return re.search(pattern, text, re.IGNORECASE) is not None
 
@@ -119,10 +130,31 @@ def filter_jobs_by_skills(jobs, required_skills, match_mode, min_matches):
     return filtered
 
 
+def load_seen_jobs():
+    if not SEEN_JOBS_PATH.exists():
+        return {}
+    try:
+        with open(SEEN_JOBS_PATH, "r") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def save_seen_jobs(seen_dict):
+    SEEN_JOBS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    cutoff = (datetime.date.today() - datetime.timedelta(days=SEEN_JOBS_RETENTION_DAYS)).isoformat()
+    pruned = {url: date for url, date in seen_dict.items() if date >= cutoff}
+    with open(SEEN_JOBS_PATH, "w") as f:
+        json.dump(pruned, f, indent=2)
+
+
+def remove_already_seen(jobs, seen_dict):
+    return [j for j in jobs if j["url"] not in seen_dict]
+
+
 def extract_resume_text(resume_path):
     if not Path(resume_path).exists():
-        print(f"[WARN] Resume not found at {resume_path}. "
-              f"'Changes Needed' will list all matched skills as missing.", file=sys.stderr)
+        print(f"[WARN] Resume not found at {resume_path}.", file=sys.stderr)
         return ""
     text = []
     with pdfplumber.open(resume_path) as pdf:
@@ -132,8 +164,6 @@ def extract_resume_text(resume_path):
 
 
 def compute_changes_needed(job, resume_text, required_skills):
-    """For skills the job cares about (matched_skills, plus any required
-    skill mentioned in the JD), flag the ones missing from the resume."""
     missing = []
     for skill in required_skills:
         in_job = skill_found_in_text(skill, job["description"])
@@ -164,16 +194,26 @@ def save_excel(df, output_filename):
     return output_filename
 
 
-def send_email(file_path, email_from, email_password, email_to):
+def send_email(file_path, email_from, email_password, email_to, job_count, min_target):
     msg = EmailMessage()
     msg["Subject"] = "Daily Data Engineering Jobs Update"
     msg["From"] = email_from
     msg["To"] = email_to
-    msg.set_content(
-        "Attached is today's Data Engineering job list, filtered by your "
-        "required skills, with a 'Changes Needed' column showing what to "
-        "add to your resume for each role."
+
+    body = (
+        f"Attached: {job_count} NEW job(s) today (already-seen jobs from "
+        f"previous days are excluded), filtered by your required skills, "
+        f"with a 'Changes Needed' column showing what to add to your resume "
+        f"for each role.\n"
     )
+    if job_count < min_target:
+        body += (
+            f"\nNote: fewer than your target of {min_target} new roles matched "
+            f"today. Consider widening required_skills/match_mode in config.yaml "
+            f"or adding more companies to companies.yaml if this happens often.\n"
+        )
+    msg.set_content(body)
+
     with open(file_path, "rb") as f:
         msg.add_attachment(
             f.read(),
@@ -187,7 +227,8 @@ def send_email(file_path, email_from, email_password, email_to):
 
 
 def main():
-    config = load_config()
+    config = load_yaml(CONFIG_PATH)
+    companies = load_yaml(COMPANIES_PATH).get("companies", [])
 
     app_id = os.environ.get("ADZUNA_APP_ID")
     app_key = os.environ.get("ADZUNA_APP_KEY")
@@ -204,30 +245,55 @@ def main():
         print(f"[ERROR] Missing required environment variables: {missing_env}", file=sys.stderr)
         sys.exit(1)
 
-    print("Fetching jobs...")
-    jobs = collect_all_jobs(config, app_id, app_key)
-    print(f"  {len(jobs)} unique jobs found before filtering.")
+    print("Fetching jobs from Adzuna...")
+    adzuna_jobs = collect_adzuna_jobs(config, app_id, app_key)
+    print(f"  {len(adzuna_jobs)} jobs from Adzuna.")
 
-    jobs = filter_jobs_by_skills(
-        jobs, config["required_skills"],
+    print(f"Fetching jobs from {len(companies)} company career portals...")
+    company_jobs, skipped = fetch_all_companies(companies)
+    print(f"  {len(company_jobs)} jobs from direct company boards.")
+    if skipped:
+        SEEN_JOBS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(SKIPPED_LOG_PATH, "w") as f:
+            f.write("\n".join(skipped))
+        print(f"  {len(skipped)} companies skipped/failed — see data/skipped_companies.txt")
+
+    all_jobs = dedupe_by_url(adzuna_jobs + company_jobs)
+    print(f"{len(all_jobs)} unique jobs total before filtering.")
+
+    matched_jobs = filter_jobs_by_skills(
+        all_jobs, config["required_skills"],
         config.get("match_mode", "min_count"),
         config.get("min_skill_matches", 2),
     )
-    print(f"  {len(jobs)} jobs matched your skill filter.")
+    print(f"{len(matched_jobs)} jobs matched your skill filter.")
 
-    if not jobs:
-        print("No matching jobs today — skipping email.")
+    seen_jobs = load_seen_jobs()
+    new_jobs = remove_already_seen(matched_jobs, seen_jobs)
+    print(f"{len(new_jobs)} are NEW (not sent on a previous day).")
+
+    min_target = config.get("min_daily_new_jobs", 10)
+
+    if not new_jobs:
+        print("No new matching jobs today — skipping email.")
         return
 
     resume_text = extract_resume_text(HERE / config["resume_path"])
-    df = build_dataframe(jobs, resume_text, config["required_skills"])
+    df = build_dataframe(new_jobs, resume_text, config["required_skills"])
 
     output_path = HERE / config["output_filename"]
     save_excel(df, str(output_path))
     print(f"Saved Excel to {output_path}")
 
-    send_email(str(output_path), email_from, email_password, email_to)
+    send_email(str(output_path), email_from, email_password, email_to,
+               len(new_jobs), min_target)
     print("Email sent.")
+
+    today = datetime.date.today().isoformat()
+    for job in new_jobs:
+        seen_jobs[job["url"]] = today
+    save_seen_jobs(seen_jobs)
+    print(f"Updated seen_jobs.json ({len(seen_jobs)} total tracked URLs).")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,9 @@ on:
     - cron: "30 3 * * *"
   workflow_dispatch: {}   # lets you also trigger it manually from the Actions tab
 
+permissions:
+  contents: write   # needed so the workflow can commit seen_jobs.json back
+
 jobs:
   run-job-tracker:
     runs-on: ubuntu-latest
@@ -38,3 +41,11 @@ jobs:
           name: daily-jobs-excel
           path: "*.xlsx"
           retention-days: 30
+
+      - name: Commit updated seen_jobs.json (prevents repeat jobs tomorrow)
+        run: |
+          git config user.name "job-tracker-bot"
+          git config user.email "actions@github.com"
+          git add data/seen_jobs.json data/skipped_companies.txt || true
+          git diff --cached --quiet || git commit -m "Update seen jobs [skip ci]"
+          git push

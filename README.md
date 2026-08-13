@@ -64,6 +64,41 @@ for 9 AM). Check your email.
 
 From then on it runs automatically every day at 9:00 AM IST.
 
+## Direct company career portals (new)
+
+Beyond Adzuna, the tracker now also queries ~100 Bangalore/India tech
+companies directly via their ATS (Greenhouse/Lever/Ashby/SmartRecruiters) —
+see `companies.yaml`. These are public, documented job-board APIs, not
+scraping — fully ToS-compliant.
+
+**These slugs are best-effort guesses** (built without live network access
+to verify). Wrong slugs just return zero jobs for that company — harmless.
+After a run, check `data/skipped_companies.txt` in the repo to see which
+companies didn't resolve, then fix the slug or remove the entry in
+`companies.yaml`. To find a company's correct slug:
+- Greenhouse: visit `boards.greenhouse.io/<slug>`
+- Lever: visit `jobs.lever.co/<slug>`
+- Ashby: visit `jobs.ashbyhq.com/<slug>`
+- SmartRecruiters: visit `careers.smartrecruiters.com/<slug>`
+
+Add as many companies as you like — no upper limit.
+
+## No-repeat tracking
+
+`data/seen_jobs.json` stores every job URL that's already been emailed to
+you. Each day's run automatically excludes anything already in that file,
+so you never see the same posting twice. After a successful run, the
+workflow commits the updated file back to your repo — this is why the
+workflow needs `permissions: contents: write` (already set) and why you'll
+see an extra automated commit in your repo history each day. Entries are
+auto-pruned after 90 days.
+
+`min_daily_new_jobs` in `config.yaml` (default 10) is your target — if
+fewer new jobs match on a given day, the email tells you so, so you know to
+loosen `required_skills`/`match_mode` or add more companies. It's a
+heads-up, not a guarantee — some days the market just won't have 10 new
+matching postings across all sources.
+
 ## Customizing
 
 Edit `config.yaml`:
