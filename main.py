@@ -197,7 +197,7 @@ def save_excel(df, output_filename):
 def send_email(file_path, email_from, email_password, email_to, job_count, min_target):
     msg = EmailMessage()
     msg["Subject"] = "Daily Data Engineering Jobs Update"
-    msg["From"] = email_from
+    msg["From"] = f"Job Tracker Bot <{email_from}>"
     msg["To"] = email_to
 
     body = (
