@@ -43,6 +43,15 @@ required_skills:
 match_mode: "min_count"
 min_skill_matches: 2
 
+# Jobs whose description mentions an experience range overlapping this
+# window get copied into a second sheet, "3-6 Years Experience", in the
+# same Excel file. This is a best-effort text match — not every posting
+# states experience explicitly, so some relevant jobs may not appear here
+# even if they'd suit you; the main sheet always has everything.
+experience_filter:
+  min_years: 3
+  max_years: 6
+
 # Your daily application target. Purely informational — if fewer than this
 # many NEW jobs are found on a given day, the email says so, so you know to
 # widen required_skills/match_mode or add more companies. It cannot force

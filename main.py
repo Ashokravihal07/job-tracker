@@ -111,6 +111,48 @@ def skill_found_in_text(skill, text):
     return re.search(pattern, text, re.IGNORECASE) is not None
 
 
+# Matches things like: "3-6 years", "3 to 6 years", "5+ years", "minimum 3 years",
+# "at least 4 years", "3 yrs", "2-4 yrs of experience"
+EXPERIENCE_PATTERNS = [
+    re.compile(r"(\d{1,2})\s*[-to]{1,4}\s*(\d{1,2})\s*\+?\s*(?:years|yrs)", re.IGNORECASE),
+    re.compile(r"(?:minimum|min\.?|at least)\s*(\d{1,2})\s*\+?\s*(?:years|yrs)", re.IGNORECASE),
+    re.compile(r"(\d{1,2})\s*\+\s*(?:years|yrs)", re.IGNORECASE),
+]
+
+
+def extract_experience_range(text):
+    """Returns (min_years, max_years) found in the text, or None if no
+    experience mention is found. For open-ended mentions like '5+ years',
+    max_years is treated as min_years + 10 (i.e. 'at least 5')."""
+    if not text:
+        return None
+    # range pattern first (most specific)
+    m = EXPERIENCE_PATTERNS[0].search(text)
+    if m:
+        lo, hi = int(m.group(1)), int(m.group(2))
+        return (min(lo, hi), max(lo, hi))
+    # "minimum X years" / "at least X years"
+    m = EXPERIENCE_PATTERNS[1].search(text)
+    if m:
+        lo = int(m.group(1))
+        return (lo, lo + 10)
+    # "X+ years"
+    m = EXPERIENCE_PATTERNS[2].search(text)
+    if m:
+        lo = int(m.group(1))
+        return (lo, lo + 10)
+    return None
+
+
+def experience_overlaps(job_range, target_min, target_max):
+    """True if the job's experience range overlaps the target range at all."""
+    if job_range is None:
+        return False
+    job_min, job_max = job_range
+    return job_min <= target_max and job_max >= target_min
+
+
+
 def filter_jobs_by_skills(jobs, required_skills, match_mode, min_matches):
     filtered = []
     for job in jobs:
@@ -186,15 +228,17 @@ def build_dataframe(jobs, resume_text, required_skills):
     return pd.DataFrame(rows, columns=["Job Title", "Company", "Location", "Job Link", "Changes Needed"])
 
 
-def save_excel(df, output_filename):
+def save_excel(df_all, df_experience, output_filename):
     today = datetime.date.today().isoformat()
     dated_name = output_filename.replace(".xlsx", f"_{today}.xlsx")
-    df.to_excel(output_filename, index=False)
-    df.to_excel(dated_name, index=False)
+    for path in (output_filename, dated_name):
+        with pd.ExcelWriter(path, engine="openpyxl") as writer:
+            df_all.to_excel(writer, sheet_name="All Matched Jobs", index=False)
+            df_experience.to_excel(writer, sheet_name="3-6 Years Experience", index=False)
     return output_filename
 
 
-def send_email(file_path, email_from, email_password, email_to, job_count, min_target):
+def send_email(file_path, email_from, email_password, email_to, job_count, exp_count, min_target):
     msg = EmailMessage()
     msg["Subject"] = "Daily Data Engineering Jobs Update"
     msg["From"] = f"Job Tracker Bot <{email_from}>"
@@ -204,7 +248,10 @@ def send_email(file_path, email_from, email_password, email_to, job_count, min_t
         f"Attached: {job_count} NEW job(s) today (already-seen jobs from "
         f"previous days are excluded), filtered by your required skills, "
         f"with a 'Changes Needed' column showing what to add to your resume "
-        f"for each role.\n"
+        f"for each role.\n\n"
+        f"Sheet 1 'All Matched Jobs': all {job_count} new jobs.\n"
+        f"Sheet 2 '3-6 Years Experience': {exp_count} of those that mention "
+        f"3-6 years experience in the job description.\n"
     )
     if job_count < min_target:
         body += (
@@ -281,12 +328,22 @@ def main():
     resume_text = extract_resume_text(HERE / config["resume_path"])
     df = build_dataframe(new_jobs, resume_text, config["required_skills"])
 
+    exp_cfg = config.get("experience_filter", {})
+    exp_min = exp_cfg.get("min_years", 3)
+    exp_max = exp_cfg.get("max_years", 6)
+    experience_jobs = [
+        job for job in new_jobs
+        if experience_overlaps(extract_experience_range(job["description"]), exp_min, exp_max)
+    ]
+    df_experience = build_dataframe(experience_jobs, resume_text, config["required_skills"])
+    print(f"{len(experience_jobs)} of those are in the {exp_min}-{exp_max} years experience range.")
+
     output_path = HERE / config["output_filename"]
-    save_excel(df, str(output_path))
-    print(f"Saved Excel to {output_path}")
+    save_excel(df, df_experience, str(output_path))
+    print(f"Saved Excel to {output_path} (2 sheets: All Matched Jobs, {exp_min}-{exp_max} Years Experience)")
 
     send_email(str(output_path), email_from, email_password, email_to,
-               len(new_jobs), min_target)
+               len(new_jobs), len(experience_jobs), min_target)
     print("Email sent.")
 
     today = datetime.date.today().isoformat()
