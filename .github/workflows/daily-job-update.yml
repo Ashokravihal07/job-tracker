@@ -1,0 +1,40 @@
+name: Daily Data Engineering Jobs Update
+
+on:
+  schedule:
+    # 03:30 UTC = 09:00 IST. Adjust for your own timezone/offset —
+    # GitHub Actions cron is always in UTC.
+    - cron: "30 3 * * *"
+  workflow_dispatch: {}   # lets you also trigger it manually from the Actions tab
+
+jobs:
+  run-job-tracker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run job tracker
+        env:
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python main.py
+
+      - name: Upload Excel as workflow artifact (backup)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-jobs-excel
+          path: "*.xlsx"
+          retention-days: 30

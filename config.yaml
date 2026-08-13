@@ -1,0 +1,50 @@
+# ----------------------------------------------------------------------------
+# config.yaml — non-secret settings. Secrets (API keys, email password) live
+# in GitHub Actions "Secrets", never in this file.
+# ----------------------------------------------------------------------------
+
+# What roles to search for
+search_keywords:
+  - "Data Engineer"
+  - "Data Engineering"
+
+# Where to search. Adzuna uses ISO country codes: in, us, gb, ca, au, etc.
+locations:
+  - country: "in"
+    city: "Bangalore"
+  - country: "in"
+    city: "Hyderabad"
+  - country: "in"
+    city: "Remote"
+
+# How many results to pull per (keyword, location) pair. Adzuna free tier
+# allows generous daily calls; keep this modest to stay well within limits.
+results_per_search: 20
+
+# ----------------------------------------------------------------------------
+# The exact skill set you want jobs filtered by. A job is kept if its
+# description contains skills matching `match_mode` below.
+# ----------------------------------------------------------------------------
+required_skills:
+  - "Spark"
+  - "Databricks"
+  - "AWS Step Functions"
+  - "Airflow"
+  - "Python"
+  - "SQL"
+  - "Kafka"
+  - "Redshift"
+  - "Snowflake"
+  - "AWS Glue"
+
+# "any"  -> keep job if it mentions AT LEAST ONE required skill
+# "all"  -> keep job if it mentions EVERY required skill (strict, few results)
+# "min_count" -> keep job if it mentions at least `min_skill_matches` skills
+match_mode: "min_count"
+min_skill_matches: 2
+
+# Excel output filename (a dated copy is also kept for history)
+output_filename: "Data_Engineering_Jobs.xlsx"
+
+# Path to your resume (checked into the repo — see README for privacy notes)
+resume_path: "resume/resume.pdf"
