@@ -1,0 +1,79 @@
+Razorpay (greenhouse/razorpay): HTTP 404
+Groww (lever/groww): HTTP 404
+Meesho (greenhouse/meesho): HTTP 404
+Urban Company (lever/urbancompany): HTTP 404
+Chargebee (lever/chargebee): HTTP 404
+Whatfix (lever/whatfix): HTTP 404
+MoEngage (greenhouse/moengage): HTTP 404
+CleverTap (greenhouse/clevertap): HTTP 404
+Sprinklr (greenhouse/sprinklr): HTTP 404
+Hasura (greenhouse/hasura): HTTP 404
+Browserstack (lever/browserstack): HTTP 404
+Wingify (lever/wingify): HTTP 404
+Rocketlane (greenhouse/rocketlane): HTTP 404
+Innovaccer (lever/innovaccer): HTTP 404
+Yellow.ai (lever/yellowmessenger): HTTP 404
+LeadSquared (greenhouse/leadsquared): HTTP 404
+Zeta (greenhouse/zeta): HTTP 404
+Uniphore (greenhouse/uniphore): HTTP 404
+Darwinbox (greenhouse/darwinbox): HTTP 404
+Fractal Analytics (greenhouse/fractal): HTTP 404
+Tiger Analytics (greenhouse/tigeranalytics): HTTP 404
+LatentView Analytics (greenhouse/latentview): HTTP 404
+Icertis (greenhouse/icertis): HTTP 404
+Freshworks (greenhouse/freshworks): HTTP 404
+Bizongo (lever/bizongo): HTTP 404
+Slice (lever/sliceit): HTTP 404
+Jupiter Money (lever/jupiter): HTTP 404
+Khatabook (greenhouse/khatabook): HTTP 404
+Vedantu (lever/vedantu): HTTP 404
+Unacademy (greenhouse/unacademy): HTTP 404
+upGrad (greenhouse/upgrad): HTTP 404
+Simplilearn (greenhouse/simplilearn): HTTP 404
+Cure.fit (cult.fit) (greenhouse/cultfit): HTTP 404
+Rebel Foods (lever/rebelfoods): HTTP 404
+Licious (greenhouse/licious): HTTP 404
+BharatPe (greenhouse/bharatpe): HTTP 404
+MPL (Mobile Premier League) (greenhouse/mpl): HTTP 404
+Dream11 (greenhouse/dream11): HTTP 404
+Games24x7 (lever/games24x7): HTTP 404
+Zepto (lever/zepto): HTTP 404
+Zetwerk (greenhouse/zetwerk): HTTP 404
+Infra.Market (lever/inframarket): HTTP 404
+ElasticRun (lever/elasticrun): HTTP 404
+Delhivery (greenhouse/delhivery): HTTP 404
+Rapido (lever/rapido): HTTP 404
+Cars24 (greenhouse/cars24): HTTP 404
+Spinny (lever/spinny): HTTP 404
+Acko (greenhouse/acko): HTTP 404
+Digit Insurance (greenhouse/godigit): HTTP 404
+PolicyBazaar (greenhouse/policybazaar): HTTP 404
+Lenskart (greenhouse/lenskart): HTTP 404
+Curefoods (lever/curefoods): HTTP 404
+HackerEarth (lever/hackerearth): HTTP 404
+Uplers (lever/uplers): HTTP 404
+Deqode (lever/deqode): HTTP 404
+Springworks (lever/springworks): HTTP 404
+Zluri (lever/zluri): HTTP 404
+Amagi (greenhouse/amagi): HTTP 404
+Zoho (greenhouse/zoho): HTTP 404
+Ather Energy (greenhouse/atherenergy): HTTP 404
+Ola Electric (greenhouse/olaelectric): HTTP 404
+Ola Cabs (greenhouse/olacabs): HTTP 404
+Swiggy (greenhouse/swiggy): HTTP 404
+CoinDCX (lever/coindcx): HTTP 404
+CoinSwitch (greenhouse/coinswitch): HTTP 404
+Setu (lever/setu): HTTP 404
+Open Financial Technologies (lever/open): HTTP 404
+Recko (lever/recko): HTTP 404
+Uni Cards (lever/uni): HTTP 404
+KreditBee (greenhouse/kreditbee): HTTP 404
+Notion (greenhouse/notion): HTTP 404
+Snowflake (greenhouse/snowflake): HTTP 404
+Confluent (greenhouse/confluent): HTTP 404
+HashiCorp (greenhouse/hashicorp): HTTP 404
+Plaid (greenhouse/plaid): HTTP 404
+Rippling (greenhouse/rippling): HTTP 404
+Deel (greenhouse/deel): HTTP 404
+Grab (greenhouse/grab): HTTP 404
+Gojek (GoTo) (greenhouse/gojek): HTTP 404
