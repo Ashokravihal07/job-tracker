@@ -9,7 +9,12 @@ search_keywords:
   - "Data Engineering"
 
 # Where to search. Adzuna uses ISO country codes: in, us, gb, ca, au, etc.
+# "India" (blank city) searches the whole country; combined with the
+# specific cities below for extra coverage in case Adzuna's city matching
+# misses something under the broader search.
 locations:
+  - country: "in"
+    city: "India"
   - country: "in"
     city: "Bangalore"
   - country: "in"
@@ -51,6 +56,11 @@ min_skill_matches: 2
 experience_filter:
   min_years: 3
   max_years: 6
+
+# Set to false to see ALL currently matching openings every day (jobs stay
+# listed even if they appeared in a previous day's email). Set to true to
+# only see jobs that are new since the last run (no repeats day-to-day).
+show_only_new_jobs: false
 
 # Your daily application target. Purely informational — if fewer than this
 # many NEW jobs are found on a given day, the email says so, so you know to
