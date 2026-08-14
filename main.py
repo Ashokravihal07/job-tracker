@@ -55,11 +55,15 @@ def load_yaml(path):
 
 def fetch_adzuna_jobs(app_id, app_key, keyword, country, city, results):
     url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1"
+    # "Remote" and "India" (nationwide) both mean "don't restrict by city" —
+    # Adzuna's `where` param wants an actual place name, and country="in"
+    # already scopes results to India.
+    where = "" if city.lower() in ("remote", "india") else city
     params = {
         "app_id": app_id,
         "app_key": app_key,
         "what": keyword,
-        "where": city if city.lower() != "remote" else "",
+        "where": where,
         "results_per_page": results,
         "content-type": "application/json",
     }
@@ -238,18 +242,22 @@ def save_excel(df_all, df_experience, output_filename):
     return output_filename
 
 
-def send_email(file_path, email_from, email_password, email_to, job_count, exp_count, min_target):
+def send_email(file_path, email_from, email_password, email_to, job_count, exp_count, min_target, show_only_new):
     msg = EmailMessage()
     msg["Subject"] = "Daily Data Engineering Jobs Update"
     msg["From"] = f"Job Tracker Bot <{email_from}>"
     msg["To"] = email_to
 
+    scope_line = (
+        f"Attached: {job_count} NEW job(s) today (already-seen jobs from previous days are excluded)"
+        if show_only_new else
+        f"Attached: {job_count} currently open job(s) matching your filters (includes jobs already sent on previous days)"
+    )
     body = (
-        f"Attached: {job_count} NEW job(s) today (already-seen jobs from "
-        f"previous days are excluded), filtered by your required skills, "
+        f"{scope_line}, filtered by your required skills, "
         f"with a 'Changes Needed' column showing what to add to your resume "
         f"for each role.\n\n"
-        f"Sheet 1 'All Matched Jobs': all {job_count} new jobs.\n"
+        f"Sheet 1 'All Matched Jobs': all {job_count} jobs.\n"
         f"Sheet 2 '3-6 Years Experience': {exp_count} of those that mention "
         f"3-6 years experience in the job description.\n"
     )
@@ -316,8 +324,13 @@ def main():
     print(f"{len(matched_jobs)} jobs matched your skill filter.")
 
     seen_jobs = load_seen_jobs()
-    new_jobs = remove_already_seen(matched_jobs, seen_jobs)
-    print(f"{len(new_jobs)} are NEW (not sent on a previous day).")
+    show_only_new = config.get("show_only_new_jobs", False)
+    if show_only_new:
+        new_jobs = remove_already_seen(matched_jobs, seen_jobs)
+        print(f"{len(new_jobs)} are NEW (not sent on a previous day).")
+    else:
+        new_jobs = matched_jobs
+        print(f"Showing all {len(new_jobs)} matching jobs (repeats from previous days included).")
 
     min_target = config.get("min_daily_new_jobs", 10)
 
@@ -343,7 +356,7 @@ def main():
     print(f"Saved Excel to {output_path} (2 sheets: All Matched Jobs, {exp_min}-{exp_max} Years Experience)")
 
     send_email(str(output_path), email_from, email_password, email_to,
-               len(new_jobs), len(experience_jobs), min_target)
+               len(new_jobs), len(experience_jobs), min_target, show_only_new)
     print("Email sent.")
 
     today = datetime.date.today().isoformat()
