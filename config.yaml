@@ -31,18 +31,26 @@ results_per_search: 20
 # description contains skills matching `match_mode` below.
 # ----------------------------------------------------------------------------
 required_skills:
+  - "PySpark"
+  - "SQL"
   - "Spark"
   - "Databricks"
   - "AWS Step Functions"
   - "Airflow"
   - "Python"
-  - "SQL"
   - "Kafka"
   - "Redshift"
   - "Snowflake"
   - "AWS Glue"
 
-# "any"  -> keep job if it mentions AT LEAST ONE required skill
+# Skills that MUST be present in the job description for it to count as a
+# match at all — a hard gate applied before match_mode below. Leave empty
+# ([]) to disable this and rely on match_mode alone.
+core_skills:
+  - "PySpark"
+  - "SQL"
+
+# "any"  -> keep job if it mentions AT LEAST ONE required skill (besides core_skills)
 # "all"  -> keep job if it mentions EVERY required skill (strict, few results)
 # "min_count" -> keep job if it mentions at least `min_skill_matches` skills
 match_mode: "min_count"
