@@ -157,10 +157,17 @@ def experience_overlaps(job_range, target_min, target_max):
 
 
 
-def filter_jobs_by_skills(jobs, required_skills, match_mode, min_matches):
+def filter_jobs_by_skills(jobs, required_skills, match_mode, min_matches, core_skills=None):
+    core_skills = core_skills or []
     filtered = []
     for job in jobs:
         text = job["description"]
+
+        # Hard gate: every core skill must be present, or the job is dropped
+        # regardless of match_mode.
+        if core_skills and not all(skill_found_in_text(s, text) for s in core_skills):
+            continue
+
         matched = [s for s in required_skills if skill_found_in_text(s, text)]
         if match_mode == "any" and len(matched) >= 1:
             keep = True
@@ -320,6 +327,7 @@ def main():
         all_jobs, config["required_skills"],
         config.get("match_mode", "min_count"),
         config.get("min_skill_matches", 2),
+        config.get("core_skills", []),
     )
     print(f"{len(matched_jobs)} jobs matched your skill filter.")
 
