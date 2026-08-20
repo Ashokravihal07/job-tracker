@@ -239,36 +239,34 @@ def build_dataframe(jobs, resume_text, required_skills):
     return pd.DataFrame(rows, columns=["Job Title", "Company", "Location", "Job Link", "Changes Needed"])
 
 
-def save_excel(df_all, df_experience, output_filename):
+def save_excel(sheets, output_filename):
+    """sheets: dict of {sheet_name: dataframe}"""
     today = datetime.date.today().isoformat()
     dated_name = output_filename.replace(".xlsx", f"_{today}.xlsx")
     for path in (output_filename, dated_name):
         with pd.ExcelWriter(path, engine="openpyxl") as writer:
-            df_all.to_excel(writer, sheet_name="All Matched Jobs", index=False)
-            df_experience.to_excel(writer, sheet_name="3-6 Years Experience", index=False)
+            for sheet_name, df in sheets.items():
+                df.to_excel(writer, sheet_name=sheet_name, index=False)
     return output_filename
 
 
-def send_email(file_path, email_from, email_password, email_to, job_count, exp_count, min_target, show_only_new):
+def send_email(file_path, email_from, email_password, email_to, total_count, new_count, old_count, exp_count, min_target):
     msg = EmailMessage()
     msg["Subject"] = "Daily Data Engineering Jobs Update"
     msg["From"] = f"Job Tracker Bot <{email_from}>"
     msg["To"] = email_to
 
-    scope_line = (
-        f"Attached: {job_count} NEW job(s) today (already-seen jobs from previous days are excluded)"
-        if show_only_new else
-        f"Attached: {job_count} currently open job(s) matching your filters (includes jobs already sent on previous days)"
-    )
     body = (
-        f"{scope_line}, filtered by your required skills, "
-        f"with a 'Changes Needed' column showing what to add to your resume "
-        f"for each role.\n\n"
-        f"Sheet 1 'All Matched Jobs': all {job_count} jobs.\n"
-        f"Sheet 2 '3-6 Years Experience': {exp_count} of those that mention "
-        f"3-6 years experience in the job description.\n"
+        f"Attached: {total_count} total matching job(s) today, filtered by your "
+        f"required skills (PySpark + SQL mandatory), with a 'Changes Needed' "
+        f"column showing what to add to your resume for each role.\n\n"
+        f"Sheet 1 'All Jobs': all {total_count} matches today.\n"
+        f"Sheet 2 'New Jobs': {new_count} you haven't been sent before.\n"
+        f"Sheet 3 'Old Jobs (Repeated)': {old_count} sent on a previous day too.\n"
+        f"Sheet 4 '3-6 Years Experience': {exp_count} of all matches that mention "
+        f"3-6 years experience in the description.\n"
     )
-    if job_count < min_target:
+    if new_count < min_target:
         body += (
             f"\nNote: fewer than your target of {min_target} new roles matched "
             f"today. Consider widening required_skills/match_mode in config.yaml "
@@ -332,43 +330,44 @@ def main():
     print(f"{len(matched_jobs)} jobs matched your skill filter.")
 
     seen_jobs = load_seen_jobs()
-    show_only_new = config.get("show_only_new_jobs", False)
-    if show_only_new:
-        new_jobs = remove_already_seen(matched_jobs, seen_jobs)
-        print(f"{len(new_jobs)} are NEW (not sent on a previous day).")
-    else:
-        new_jobs = matched_jobs
-        print(f"Showing all {len(new_jobs)} matching jobs (repeats from previous days included).")
+    old_jobs = [j for j in matched_jobs if j["url"] in seen_jobs]
+    new_jobs = [j for j in matched_jobs if j["url"] not in seen_jobs]
+    print(f"{len(new_jobs)} new, {len(old_jobs)} already seen on a previous day.")
 
     min_target = config.get("min_daily_new_jobs", 10)
 
-    if not new_jobs:
-        print("No new matching jobs today — skipping email.")
+    if not matched_jobs:
+        print("No matching jobs today — skipping email.")
         return
 
     resume_text = extract_resume_text(HERE / config["resume_path"])
-    df = build_dataframe(new_jobs, resume_text, config["required_skills"])
 
     exp_cfg = config.get("experience_filter", {})
     exp_min = exp_cfg.get("min_years", 3)
     exp_max = exp_cfg.get("max_years", 6)
     experience_jobs = [
-        job for job in new_jobs
+        job for job in matched_jobs
         if experience_overlaps(extract_experience_range(job["description"]), exp_min, exp_max)
     ]
-    df_experience = build_dataframe(experience_jobs, resume_text, config["required_skills"])
-    print(f"{len(experience_jobs)} of those are in the {exp_min}-{exp_max} years experience range.")
+    print(f"{len(experience_jobs)} of all matched jobs are in the {exp_min}-{exp_max} years experience range.")
+
+    sheets = {
+        "All Jobs": build_dataframe(matched_jobs, resume_text, config["required_skills"]),
+        "New Jobs": build_dataframe(new_jobs, resume_text, config["required_skills"]),
+        "Old Jobs (Repeated)": build_dataframe(old_jobs, resume_text, config["required_skills"]),
+        f"{exp_min}-{exp_max} Years Experience": build_dataframe(experience_jobs, resume_text, config["required_skills"]),
+    }
 
     output_path = HERE / config["output_filename"]
-    save_excel(df, df_experience, str(output_path))
-    print(f"Saved Excel to {output_path} (2 sheets: All Matched Jobs, {exp_min}-{exp_max} Years Experience)")
+    save_excel(sheets, str(output_path))
+    print(f"Saved Excel to {output_path} with sheets: {list(sheets.keys())}")
 
     send_email(str(output_path), email_from, email_password, email_to,
-               len(new_jobs), len(experience_jobs), min_target, show_only_new)
+               len(matched_jobs), len(new_jobs), len(old_jobs), len(experience_jobs), min_target)
     print("Email sent.")
 
     today = datetime.date.today().isoformat()
-    for job in new_jobs:
+    for job in matched_jobs:
         seen_jobs[job["url"]] = today
     save_seen_jobs(seen_jobs)
     print(f"Updated seen_jobs.json ({len(seen_jobs)} total tracked URLs).")
@@ -376,3 +375,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+   
