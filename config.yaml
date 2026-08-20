@@ -3,18 +3,18 @@
 # in GitHub Actions "Secrets", never in this file.
 # ----------------------------------------------------------------------------
 
-# What roles to search for
+# What roles to search for — more variants = wider Adzuna coverage
 search_keywords:
   - "Data Engineer"
   - "Data Engineering"
+  - "Big Data Engineer"
+  - "Azure Data Engineer"
+  - "PySpark Developer"
+  - "ETL Developer"
+  - "Analytics Engineer"
 
 # Where to search. Adzuna uses ISO country codes: in, us, gb, ca, au, etc.
-# "India" (blank city) searches the whole country; combined with the
-# specific cities below for extra coverage in case Adzuna's city matching
-# misses something under the broader search.
 locations:
-  - country: "in"
-    city: "India"
   - country: "in"
     city: "Bangalore"
   - country: "in"
@@ -24,28 +24,48 @@ locations:
 
 # How many results to pull per (keyword, location) pair. Adzuna free tier
 # allows generous daily calls; keep this modest to stay well within limits.
-results_per_search: 20
+results_per_search: 30
 
 # ----------------------------------------------------------------------------
-# The exact skill set you want jobs filtered by. A job is kept if its
-# description contains skills matching `match_mode` below.
+# Skills based on Ashok's actual resume (Sr. Data Engineer, ~5 yrs exp).
+# These drive job filtering AND the "Changes Needed" comparison.
+#
+# - Skills already on the resume: matching jobs that need them won't show
+#   them as "missing" — resume already covers these.
+# - Skills NOT yet on the resume (marked below) will show up in "Changes
+#   Needed" whenever a matched job asks for them — these are learning
+#   targets Ashok wants to track and add to his resume once acquired.
 # ----------------------------------------------------------------------------
 required_skills:
+  # --- already on resume ---
   - "PySpark"
-  - "SQL"
   - "Spark"
-  - "Databricks"
-  - "AWS Step Functions"
-  - "Airflow"
+  - "SQL"
   - "Python"
-  - "Kafka"
+  - "Hive"
+  - "AWS Lambda"
+  - "AWS Step Functions"
+  - "AWS S3"
+  - "CloudWatch"
   - "Redshift"
+  - "IAM"
+  - "PostgreSQL"
+  - "Informatica"
+  - "Hadoop"
+  - "Cloudera"
+  # --- NOT on resume yet — will surface in "Changes Needed" ---
+  - "Azure"
+  - "Azure Databricks"
+  - "Azure Data Factory"
+  - "Databricks"
   - "Snowflake"
+  - "Airflow"
+  - "Kafka"
   - "AWS Glue"
 
 # Skills that MUST be present in the job description for it to count as a
-# match at all — a hard gate applied before match_mode below. Leave empty
-# ([]) to disable this and rely on match_mode alone.
+# match at all — a hard gate applied before match_mode below. Kept as
+# PySpark + SQL since both are core to Ashok's actual experience.
 core_skills:
   - "PySpark"
   - "SQL"
@@ -54,7 +74,7 @@ core_skills:
 # "all"  -> keep job if it mentions EVERY required skill (strict, few results)
 # "min_count" -> keep job if it mentions at least `min_skill_matches` skills
 match_mode: "min_count"
-min_skill_matches: 2
+min_skill_matches: 3
 
 # Jobs whose description mentions an experience range overlapping this
 # window get copied into a second sheet, "3-6 Years Experience", in the
@@ -64,11 +84,6 @@ min_skill_matches: 2
 experience_filter:
   min_years: 3
   max_years: 6
-
-# Set to false to see ALL currently matching openings every day (jobs stay
-# listed even if they appeared in a previous day's email). Set to true to
-# only see jobs that are new since the last run (no repeats day-to-day).
-show_only_new_jobs: true
 
 # Your daily application target. Purely informational — if fewer than this
 # many NEW jobs are found on a given day, the email says so, so you know to
