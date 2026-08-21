@@ -121,3 +121,5 @@ dbt Labs (greenhouse/dbtlabs): HTTP 404
 Astronomer (greenhouse/astronomer): HTTP 404
 Alation (greenhouse/alation): HTTP 404
 Cloudera (greenhouse/cloudera): HTTP 404
+Globant (greenhouse/globant): HTTP 404
+Xebia (lever/xebia): HTTP 404
