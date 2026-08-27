@@ -22,6 +22,7 @@ Tiger Analytics (greenhouse/tigeranalytics): HTTP 404
 LatentView Analytics (greenhouse/latentview): HTTP 404
 Icertis (greenhouse/icertis): HTTP 404
 Freshworks (greenhouse/freshworks): HTTP 404
+Zenoti (greenhouse/zenoti): HTTPSConnectionPool(host='boards-api.greenhouse.io', port=443): Read timed out. (read timeout=15)
 Bizongo (lever/bizongo): HTTP 404
 Slice (lever/sliceit): HTTP 404
 Jupiter Money (lever/jupiter): HTTP 404
