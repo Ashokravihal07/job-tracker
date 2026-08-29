@@ -117,7 +117,6 @@ Booking.com (greenhouse/bookingcom): HTTP 404
 Yahoo (greenhouse/yahoo): HTTP 404
 Wayfair (greenhouse/wayfair): HTTP 404
 DoorDash (greenhouse/doordash): HTTP 404
-Cloudflare (greenhouse/cloudflare): HTTPSConnectionPool(host='boards-api.greenhouse.io', port=443): Read timed out. (read timeout=15)
 ThoughtSpot (greenhouse/thoughtspot): HTTP 404
 dbt Labs (greenhouse/dbtlabs): HTTP 404
 Astronomer (greenhouse/astronomer): HTTP 404
