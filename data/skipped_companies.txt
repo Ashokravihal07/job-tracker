@@ -73,6 +73,7 @@ Notion (greenhouse/notion): HTTP 404
 Snowflake (greenhouse/snowflake): HTTP 404
 Confluent (greenhouse/confluent): HTTP 404
 HashiCorp (greenhouse/hashicorp): HTTP 404
+GitLab (greenhouse/gitlab): HTTPSConnectionPool(host='boards-api.greenhouse.io', port=443): Read timed out. (read timeout=15)
 Plaid (greenhouse/plaid): HTTP 404
 Rippling (greenhouse/rippling): HTTP 404
 Deel (greenhouse/deel): HTTP 404
