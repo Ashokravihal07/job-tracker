@@ -5,7 +5,7 @@ Urban Company (lever/urbancompany): HTTP 404
 Chargebee (lever/chargebee): HTTP 404
 Whatfix (lever/whatfix): HTTP 404
 MoEngage (greenhouse/moengage): HTTP 404
-CleverTap (greenhouse/clevertap): HTTPSConnectionPool(host='boards-api.greenhouse.io', port=443): Read timed out. (read timeout=15)
+CleverTap (greenhouse/clevertap): HTTP 404
 Sprinklr (greenhouse/sprinklr): HTTP 404
 Hasura (greenhouse/hasura): HTTP 404
 Browserstack (lever/browserstack): HTTP 404
