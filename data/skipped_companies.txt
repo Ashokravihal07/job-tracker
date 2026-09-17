@@ -1,4 +1,5 @@
 Razorpay (greenhouse/razorpay): HTTP 404
+Postman (greenhouse/postman): HTTP 404
 Groww (lever/groww): HTTP 404
 Meesho (greenhouse/meesho): HTTP 404
 Urban Company (lever/urbancompany): HTTP 404
