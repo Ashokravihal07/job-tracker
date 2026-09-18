@@ -1,7 +1,7 @@
 Razorpay (greenhouse/razorpay): HTTP 404
 Postman (greenhouse/postman): HTTP 404
 Groww (lever/groww): HTTP 404
-Meesho (greenhouse/meesho): HTTP 404
+Meesho (greenhouse/meesho): ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
 Urban Company (lever/urbancompany): HTTP 404
 Chargebee (lever/chargebee): HTTP 404
 Whatfix (lever/whatfix): HTTP 404
