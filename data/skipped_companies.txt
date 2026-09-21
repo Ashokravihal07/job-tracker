@@ -35,7 +35,7 @@ Cure.fit (cult.fit) (greenhouse/cultfit): HTTP 404
 Rebel Foods (lever/rebelfoods): HTTP 404
 Licious (greenhouse/licious): HTTP 404
 BharatPe (greenhouse/bharatpe): HTTP 404
-MPL (Mobile Premier League) (greenhouse/mpl): HTTP 404
+MPL (Mobile Premier League) (greenhouse/mpl): HTTPSConnectionPool(host='boards-api.greenhouse.io', port=443): Read timed out. (read timeout=15)
 Dream11 (greenhouse/dream11): HTTP 404
 Games24x7 (lever/games24x7): HTTP 404
 Zepto (lever/zepto): HTTP 404
