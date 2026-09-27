@@ -62,7 +62,7 @@ Ather Energy (greenhouse/atherenergy): HTTP 404
 Ola Electric (greenhouse/olaelectric): HTTP 404
 Ola Cabs (greenhouse/olacabs): HTTP 404
 Swiggy (greenhouse/swiggy): HTTP 404
-PhonePe (greenhouse/phonepe): HTTPSConnectionPool(host='boards-api.greenhouse.io', port=443): Read timed out. (read timeout=15)
+PhonePe (greenhouse/phonepe): HTTP 404
 CoinDCX (lever/coindcx): HTTP 404
 CoinSwitch (greenhouse/coinswitch): HTTP 404
 Setu (lever/setu): HTTP 404
