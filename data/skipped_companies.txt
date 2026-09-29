@@ -95,7 +95,7 @@ Sarvatra Technologies (lever/sarvatra): HTTP 404
 Randstad Digital (greenhouse/randstaddigital): HTTP 404
 Tekion (greenhouse/tekion): HTTP 404
 Uplers Hyderabad (lever/uplershyd): HTTP 404
-Darwinbox Hyderabad (greenhouse/darwinboxhyd): HTTP 404
+Darwinbox Hyderabad (greenhouse/darwinboxhyd): HTTPSConnectionPool(host='boards-api.greenhouse.io', port=443): Read timed out. (read timeout=15)
 Infor (greenhouse/infor): HTTP 404
 Nutanix (greenhouse/nutanix): HTTP 404
 Cadence Design Systems (greenhouse/cadencedesignsystems): HTTP 404
