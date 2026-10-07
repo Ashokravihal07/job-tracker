@@ -1,8 +1,22 @@
-# Daily Data Engineering Job Tracker
+# Daily .NET Developer Job Tracker
 
-Runs every day at 9:00 AM (IST by default), pulls Data Engineering jobs,
-filters by your required skills, checks each job against your resume, and
+Runs every day at 9:00 AM (IST by default), pulls .NET Developer jobs,
+filters by skills detected in your resume and 1.4 years of experience, and
 emails you an Excel file with a "Changes Needed" column.
+
+The current resume matches .NET, C#, ASP.NET Core, SQL, SQL Server,
+Entity Framework, Web API, REST, Azure, and Git. The tracker reads the
+resume on every run, using `required_skills` as its skill vocabulary.
+Skills absent from the resume do not count toward job matching, but can
+still appear in "Changes Needed". Missing or unreadable resume text stops
+resume-based matching rather than silently using unrelated skills.
+
+Experience requirements such as `1-2 years` and `1+ years` are accepted;
+`2 years`, `2+ years`, and `3-6 years` are excluded from all sheets.
+Jobs that do not state experience are included by default, but omitted
+from the `1.4 Years Experience` sheet. `1.4` means decimal years (about
+17 months), not one year and four months; use approximately `1.3333` for
+16 months. Experience matching is a best-effort description-text check.
 
 ## Why not LinkedIn/Naukri scraping?
 
@@ -58,7 +72,7 @@ Add all five:
 | `EMAIL_TO` | the address that should receive the daily update |
 
 ### 6. Test it
-Go to the **Actions** tab → "Daily Data Engineering Jobs Update" →
+Go to the **Actions** tab → "Daily .NET Developer Jobs Update" →
 **Run workflow** (this uses the `workflow_dispatch` trigger, no need to wait
 for 9 AM). Check your email.
 
@@ -86,8 +100,9 @@ Add as many companies as you like — no upper limit.
 ## No-repeat tracking
 
 `data/seen_jobs.json` stores every job URL that's already been emailed to
-you. Each day's run automatically excludes anything already in that file,
-so you never see the same posting twice. After a successful run, the
+you. Each day's workbook separates unseen postings into "New Jobs" and
+previously emailed postings into "Old Jobs (Repeated)"; "All Jobs" contains
+both. After a successful run, the
 workflow commits the updated file back to your repo — this is why the
 workflow needs `permissions: contents: write` (already set) and why you'll
 see an extra automated commit in your repo history each day. Entries are
@@ -105,7 +120,20 @@ Edit `config.yaml`:
 - `search_keywords` — job titles to search
 - `locations` — cities/countries (Adzuna country codes: `in`, `us`, `gb`, `ca`, `au`, ...)
 - `required_skills` — your exact skill list
+- `use_resume_skills` — match only vocabulary skills detected in the PDF
+- `core_skills` — mandatory job-description skills (.NET by default, with aliases)
 - `match_mode` — `any`, `all`, or `min_count` (with `min_skill_matches`)
+- `experience_filter.years` — your experience in decimal years
+- `experience_filter.include_unspecified` — include jobs without stated experience
+- `job_focus` and `output_filename` — email subject and workbook filename
+
+## Future: Karnataka government notifications
+
+Government notifications are not fetched yet. A later addition can use
+official Karnataka recruitment sources such as KPSC and KEA, and report
+notification links, application deadlines, qualifications, and age limits
+in a separate sheet. These need their own eligibility checks, not the
+private-sector .NET skill and experience filter.
 
 To change the run time, edit the `cron:` line in
 `.github/workflows/daily-job-update.yml` — GitHub Actions cron is always UTC,
@@ -120,6 +148,11 @@ export EMAIL_ADDRESS=you@gmail.com
 export EMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
 export EMAIL_TO=you@gmail.com
 python main.py
+```
+
+Run offline regression tests (no API credentials or email needed):
+```bash
+python -m unittest test_main -v
 ```
 
 ## Known limitations

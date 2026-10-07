@@ -1,5 +1,5 @@
 """
-Daily Data Engineering Job Tracker
+Daily .NET Developer Job Tracker
 -----------------------------------
 1. Pulls jobs from TWO legitimate sources:
    a) Adzuna API (broad aggregator, includes Indeed-sourced listings)
@@ -46,6 +46,15 @@ COMPANIES_PATH = HERE / "companies.yaml"
 SEEN_JOBS_PATH = HERE / "data" / "seen_jobs.json"
 SKIPPED_LOG_PATH = HERE / "data" / "skipped_companies.txt"
 SEEN_JOBS_RETENTION_DAYS = 90
+SKILL_ALIASES = {
+    ".NET": ["dotnet", "dot net", "ASP.NET", "ASP NET", "ASPNet"],
+    "C#": ["C Sharp", "CSharp"],
+    "ASP.NET Core": ["ASP NET Core", "ASPNet Core"],
+    "SQL Server": ["MSSQL", "MS SQL"],
+    "Entity Framework": ["EF Core", "EntityFramework"],
+    "Web API": ["WebAPI"],
+    "REST": ["RESTful"],
+}
 
 
 def load_yaml(path):
@@ -111,16 +120,32 @@ def dedupe_by_url(jobs):
 
 
 def skill_found_in_text(skill, text):
-    pattern = r"(?<![A-Za-z0-9])" + re.escape(skill) + r"(?![A-Za-z0-9])"
-    return re.search(pattern, text, re.IGNORECASE) is not None
+    for name in [skill, *SKILL_ALIASES.get(skill, [])]:
+        pattern = r"(?<![A-Za-z0-9])" + re.escape(name) + r"(?![A-Za-z0-9])"
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    return False
+
+
+def get_matching_skills(config, resume_text):
+    skills = config["required_skills"]
+    if not config.get("use_resume_skills", False):
+        return skills
+    if not resume_text.strip():
+        raise ValueError("Resume-based search requires a readable resume PDF.")
+    matched = [skill for skill in skills if skill_found_in_text(skill, resume_text)]
+    if not matched:
+        raise ValueError("No configured skills found in the resume; update required_skills.")
+    return matched
 
 
 # Matches things like: "3-6 years", "3 to 6 years", "5+ years", "minimum 3 years",
 # "at least 4 years", "3 yrs", "2-4 yrs of experience"
 EXPERIENCE_PATTERNS = [
-    re.compile(r"(\d{1,2})\s*[-to]{1,4}\s*(\d{1,2})\s*\+?\s*(?:years|yrs)", re.IGNORECASE),
-    re.compile(r"(?:minimum|min\.?|at least)\s*(\d{1,2})\s*\+?\s*(?:years|yrs)", re.IGNORECASE),
-    re.compile(r"(\d{1,2})\s*\+\s*(?:years|yrs)", re.IGNORECASE),
+    re.compile(r"(?<![\d.])(\d{1,2}(?:\.\d+)?)\s*(?:-|\u2013|\u2014|to)\s*(\d{1,2}(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)\b", re.IGNORECASE),
+    re.compile(r"(?:minimum|min\.?|at least)\s*(\d{1,2}(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)\b", re.IGNORECASE),
+    re.compile(r"(?<![\d.])(\d{1,2}(?:\.\d+)?)\s*\+\s*(?:years?|yrs?)\b", re.IGNORECASE),
+    re.compile(r"(?<![\d.])(\d{1,2}(?:\.\d+)?)\s*(?:years?|yrs?)\b", re.IGNORECASE),
 ]
 
 
@@ -133,17 +158,21 @@ def extract_experience_range(text):
     # range pattern first (most specific)
     m = EXPERIENCE_PATTERNS[0].search(text)
     if m:
-        lo, hi = int(m.group(1)), int(m.group(2))
+        lo, hi = float(m.group(1)), float(m.group(2))
         return (min(lo, hi), max(lo, hi))
     # "minimum X years" / "at least X years"
     m = EXPERIENCE_PATTERNS[1].search(text)
     if m:
-        lo = int(m.group(1))
+        lo = float(m.group(1))
         return (lo, lo + 10)
     # "X+ years"
     m = EXPERIENCE_PATTERNS[2].search(text)
     if m:
-        lo = int(m.group(1))
+        lo = float(m.group(1))
+        return (lo, lo + 10)
+    m = EXPERIENCE_PATTERNS[3].search(text)
+    if m:
+        lo = float(m.group(1))
         return (lo, lo + 10)
     return None
 
@@ -155,6 +184,18 @@ def experience_overlaps(job_range, target_min, target_max):
     job_min, job_max = job_range
     return job_min <= target_max and job_max >= target_min
 
+
+def filter_jobs_by_experience(jobs, years, include_unspecified=True):
+    filtered = []
+    for job in jobs:
+        job_range = extract_experience_range(job["description"])
+        if job_range is None:
+            keep = include_unspecified
+        else:
+            keep = experience_overlaps(job_range, years, years)
+        if keep:
+            filtered.append(job)
+    return filtered
 
 
 def filter_jobs_by_skills(jobs, required_skills, match_mode, min_matches, core_skills=None):
@@ -250,21 +291,23 @@ def save_excel(sheets, output_filename):
     return output_filename
 
 
-def send_email(file_path, email_from, email_password, email_to, total_count, new_count, old_count, exp_count, min_target):
+def send_email(file_path, email_from, email_password, email_to, total_count, new_count, old_count, exp_count, min_target,
+               job_focus=".NET Developer", experience_label="1.4 Years Experience"):
     msg = EmailMessage()
-    msg["Subject"] = "Daily Data Engineering Jobs Update"
+    msg["Subject"] = f"Daily {job_focus} Jobs Update"
     msg["From"] = f"Job Tracker Bot <{email_from}>"
     msg["To"] = email_to
 
     body = (
         f"Attached: {total_count} total matching job(s) today, filtered by your "
-        f"required skills (PySpark + SQL mandatory), with a 'Changes Needed' "
+        f"resume skills and configured experience, with a 'Changes Needed' "
         f"column showing what to add to your resume for each role.\n\n"
         f"Sheet 1 'All Jobs': all {total_count} matches today.\n"
         f"Sheet 2 'New Jobs': {new_count} you haven't been sent before.\n"
         f"Sheet 3 'Old Jobs (Repeated)': {old_count} sent on a previous day too.\n"
-        f"Sheet 4 '3-6 Years Experience': {exp_count} of all matches that mention "
-        f"3-6 years experience in the description.\n"
+        f"Sheet 4 '{experience_label}': {exp_count} matches with an explicit "
+        f"compatible experience requirement. Jobs without a stated requirement "
+        f"appear only in the other sheets when enabled.\n"
     )
     if new_count < min_target:
         body += (
@@ -305,6 +348,10 @@ def main():
         print(f"[ERROR] Missing required environment variables: {missing_env}", file=sys.stderr)
         sys.exit(1)
 
+    resume_text = extract_resume_text(HERE / config["resume_path"])
+    matching_skills = get_matching_skills(config, resume_text)
+    print(f"Searching with skills: {', '.join(matching_skills)}")
+
     print("Fetching jobs from Adzuna...")
     adzuna_jobs = collect_adzuna_jobs(config, app_id, app_key)
     print(f"  {len(adzuna_jobs)} jobs from Adzuna.")
@@ -322,12 +369,20 @@ def main():
     print(f"{len(all_jobs)} unique jobs total before filtering.")
 
     matched_jobs = filter_jobs_by_skills(
-        all_jobs, config["required_skills"],
+        all_jobs, matching_skills,
         config.get("match_mode", "min_count"),
         config.get("min_skill_matches", 2),
         config.get("core_skills", []),
     )
     print(f"{len(matched_jobs)} jobs matched your skill filter.")
+
+    exp_cfg = config.get("experience_filter", {})
+    years = exp_cfg.get("years")
+    if years is not None:
+        matched_jobs = filter_jobs_by_experience(
+            matched_jobs, years, exp_cfg.get("include_unspecified", True),
+        )
+        print(f"{len(matched_jobs)} jobs compatible with {years} years of experience.")
 
     seen_jobs = load_seen_jobs()
     old_jobs = [j for j in matched_jobs if j["url"] in seen_jobs]
@@ -340,11 +395,12 @@ def main():
         print("No matching jobs today — skipping email.")
         return
 
-    resume_text = extract_resume_text(HERE / config["resume_path"])
-
-    exp_cfg = config.get("experience_filter", {})
-    exp_min = exp_cfg.get("min_years", 3)
-    exp_max = exp_cfg.get("max_years", 6)
+    exp_min = exp_cfg.get("min_years", years if years is not None else 3)
+    exp_max = exp_cfg.get("max_years", years if years is not None else 6)
+    experience_label = (
+        f"{exp_min} Years Experience" if exp_min == exp_max
+        else f"{exp_min}-{exp_max} Years Experience"
+    )
     experience_jobs = [
         job for job in matched_jobs
         if experience_overlaps(extract_experience_range(job["description"]), exp_min, exp_max)
@@ -355,7 +411,7 @@ def main():
         "All Jobs": build_dataframe(matched_jobs, resume_text, config["required_skills"]),
         "New Jobs": build_dataframe(new_jobs, resume_text, config["required_skills"]),
         "Old Jobs (Repeated)": build_dataframe(old_jobs, resume_text, config["required_skills"]),
-        f"{exp_min}-{exp_max} Years Experience": build_dataframe(experience_jobs, resume_text, config["required_skills"]),
+        experience_label: build_dataframe(experience_jobs, resume_text, config["required_skills"]),
     }
 
     output_path = HERE / config["output_filename"]
@@ -363,7 +419,8 @@ def main():
     print(f"Saved Excel to {output_path} with sheets: {list(sheets.keys())}")
 
     send_email(str(output_path), email_from, email_password, email_to,
-               len(matched_jobs), len(new_jobs), len(old_jobs), len(experience_jobs), min_target)
+               len(matched_jobs), len(new_jobs), len(old_jobs), len(experience_jobs), min_target,
+               config.get("job_focus", ".NET Developer"), experience_label)
     print("Email sent.")
 
     today = datetime.date.today().isoformat()

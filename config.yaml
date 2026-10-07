@@ -5,13 +5,13 @@
 
 # What roles to search for — more variants = wider Adzuna coverage
 search_keywords:
-  - "Data Engineer"
-  - "Data Engineering"
-  - "Big Data Engineer"
-  - "Azure Data Engineer"
-  - "PySpark Developer"
-  - "ETL Developer"
-  - "Analytics Engineer"
+  - ".NET Developer"
+  - "Dotnet Developer"
+  - "C# Developer"
+  - "ASP.NET Core Developer"
+  - "Junior .NET Developer"
+
+job_focus: ".NET Developer"
 
 # Where to search. Adzuna uses ISO country codes: in, us, gb, ca, au, etc.
 locations:
@@ -27,63 +27,43 @@ locations:
 results_per_search: 30
 
 # ----------------------------------------------------------------------------
-# Skills based on Ashok's actual resume (Sr. Data Engineer, ~5 yrs exp).
-# These drive job filtering AND the "Changes Needed" comparison.
-#
-# - Skills already on the resume: matching jobs that need them won't show
-#   them as "missing" — resume already covers these.
-# - Skills NOT yet on the resume (marked below) will show up in "Changes
-#   Needed" whenever a matched job asks for them — these are learning
-#   targets Ashok wants to track and add to his resume once acquired.
+# Skill vocabulary for .NET roles. Only skills detected in the resume
+# drive matching; the full list drives the "Changes Needed" comparison.
 # ----------------------------------------------------------------------------
+use_resume_skills: true
 required_skills:
-  # --- already on resume ---
-  - "PySpark"
-  - "Spark"
+  - ".NET"
+  - "C#"
+  - "ASP.NET Core"
   - "SQL"
-  - "Python"
-  - "Hive"
-  - "AWS Lambda"
-  - "AWS Step Functions"
-  - "AWS S3"
-  - "CloudWatch"
-  - "Redshift"
-  - "IAM"
-  - "PostgreSQL"
-  - "Informatica"
-  - "Hadoop"
-  - "Cloudera"
-  # --- NOT on resume yet — will surface in "Changes Needed" ---
+  - "SQL Server"
+  - "Entity Framework"
+  - "Web API"
+  - "REST"
   - "Azure"
-  - "Azure Databricks"
-  - "Azure Data Factory"
-  - "Databricks"
-  - "Snowflake"
-  - "Airflow"
-  - "Kafka"
-  - "AWS Glue"
+  - "Git"
+  - "JavaScript"
+  - "TypeScript"
+  - "Angular"
+  - "React"
 
 # Skills that MUST be present in the job description for it to count as a
-# match at all — a hard gate applied before match_mode below. Kept as
-# PySpark + SQL since both are core to Ashok's actual experience.
+# match at all. .NET also recognizes dotnet and ASP.NET variants.
 core_skills:
-  - "PySpark"
-  - "SQL"
+  - ".NET"
 
 # "any"  -> keep job if it mentions AT LEAST ONE required skill (besides core_skills)
 # "all"  -> keep job if it mentions EVERY required skill (strict, few results)
 # "min_count" -> keep job if it mentions at least `min_skill_matches` skills
 match_mode: "min_count"
-min_skill_matches: 3
+min_skill_matches: 2
 
-# Jobs whose description mentions an experience range overlapping this
-# window get copied into a second sheet, "3-6 Years Experience", in the
-# same Excel file. This is a best-effort text match — not every posting
-# states experience explicitly, so some relevant jobs may not appear here
-# even if they'd suit you; the main sheet always has everything.
+# Decimal years, not years.months: 1.4 years is approximately 17 months.
+# Reject requirements that do not include this experience level across
+# ALL sheets. Keep unstated requirements, but not in the experience sheet.
 experience_filter:
-  min_years: 3
-  max_years: 6
+  years: 1.4
+  include_unspecified: true
 
 # Your daily application target. Purely informational — if fewer than this
 # many NEW jobs are found on a given day, the email says so, so you know to
@@ -92,7 +72,7 @@ experience_filter:
 min_daily_new_jobs: 10
 
 # Excel output filename (a dated copy is also kept for history)
-output_filename: "Data_Engineering_Jobs.xlsx"
+output_filename: "DotNet_Developer_Jobs.xlsx"
 
 # Path to your resume (checked into the repo — see README for privacy notes)
 resume_path: "resume/resume.pdf"

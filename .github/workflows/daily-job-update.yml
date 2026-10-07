@@ -1,4 +1,4 @@
-name: Daily Data Engineering Jobs Update
+name: Daily .NET Developer Jobs Update
 
 on:
   schedule:
