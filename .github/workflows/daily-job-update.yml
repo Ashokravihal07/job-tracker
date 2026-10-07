@@ -10,12 +10,19 @@ on:
 permissions:
   contents: write   # needed so the workflow can commit seen_jobs.json back
 
+concurrency:
+  group: job-tracker-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   run-job-tracker:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,9 +50,23 @@ jobs:
           retention-days: 30
 
       - name: Commit updated seen_jobs.json (prevents repeat jobs tomorrow)
+        env:
+          TRACKER_BRANCH: ${{ github.ref_name }}
         run: |
           git config user.name "job-tracker-bot"
           git config user.email "actions@github.com"
-          git add data/seen_jobs.json data/skipped_companies.txt || true
-          git diff --cached --quiet || git commit -m "Update seen jobs [skip ci]"
-          git push
+          git add -- data/seen_jobs.json data/skipped_companies.txt
+          if git diff --cached --quiet; then
+            echo "No tracking changes to commit."
+            exit 0
+          fi
+          git commit -m "Update seen jobs [skip ci]"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "$TRACKER_BRANCH"
+            if git push origin "HEAD:refs/heads/$TRACKER_BRANCH"; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying with the latest branch."
+          done
+          echo "::error::Unable to save tracking data after three push attempts."
+          exit 1
