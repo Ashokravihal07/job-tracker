@@ -74,5 +74,5 @@ min_daily_new_jobs: 10
 # Excel output filename (a dated copy is also kept for history)
 output_filename: "DotNet_Developer_Jobs.xlsx"
 
-# Path to your resume (checked into the repo — see README for privacy notes)
+# Local PDF fallback; GitHub Actions uses the RESUME_TEXT repository secret.
 resume_path: "resume/resume.pdf"

@@ -39,6 +39,7 @@ jobs:
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
           EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          RESUME_TEXT: ${{ secrets.RESUME_TEXT }}
         run: python main.py
 
       - name: Upload Excel as workflow artifact (backup)

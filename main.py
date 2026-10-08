@@ -22,6 +22,9 @@ Required environment variables (set as GitHub Secrets, or in a local .env):
   EMAIL_ADDRESS       - the Gmail address to SEND from
   EMAIL_APP_PASSWORD  - a Gmail "App Password" (not your normal password)
   EMAIL_TO            - the address to RECEIVE the daily update
+
+Optional environment variable:
+    RESUME_TEXT         - private resume text; takes precedence over the PDF
 """
 
 import os
@@ -132,7 +135,7 @@ def get_matching_skills(config, resume_text):
     if not config.get("use_resume_skills", False):
         return skills
     if not resume_text.strip():
-        raise ValueError("Resume-based search requires a readable resume PDF.")
+        raise ValueError("Resume-based search requires RESUME_TEXT or a readable resume PDF.")
     matched = [skill for skill in skills if skill_found_in_text(skill, resume_text)]
     if not matched:
         raise ValueError("No configured skills found in the resume; update required_skills.")
@@ -348,7 +351,9 @@ def main():
         print(f"[ERROR] Missing required environment variables: {missing_env}", file=sys.stderr)
         sys.exit(1)
 
-    resume_text = extract_resume_text(HERE / config["resume_path"])
+    resume_text = os.environ.get("RESUME_TEXT", "").strip()
+    if not resume_text:
+        resume_text = extract_resume_text(HERE / config["resume_path"])
     matching_skills = get_matching_skills(config, resume_text)
     print(f"Searching with skills: {', '.join(matching_skills)}")
 

@@ -6,7 +6,8 @@ emails you an Excel file with a "Changes Needed" column.
 
 The current resume matches .NET, C#, ASP.NET Core, SQL, SQL Server,
 Entity Framework, Web API, REST, Azure, and Git. The tracker reads the
-resume on every run, using `required_skills` as its skill vocabulary.
+`RESUME_TEXT` environment variable, or the local PDF when it is empty,
+on every run, using `required_skills` as its skill vocabulary.
 Skills absent from the resume do not count toward job matching, but can
 still appear in "Changes Needed". Missing or unreadable resume text stops
 resume-based matching rather than silently using unrelated skills.
@@ -42,12 +43,17 @@ function is the only place you'd need to add a second fetch function.
 - Copy the 16-character password
 
 ### 3. Add your resume
-- Put your resume PDF at `resume/resume.pdf` in this repo.
-- **Privacy note:** if this repo is public, your resume will be too. Either
-  make the GitHub repo **private** (free for personal repos), or skip
-  committing your resume and instead download it into the runner at
-  workflow time from a private storage location — ask me if you'd like
-  that version instead.
+- For local runs, put your PDF at `resume/resume.pdf`. It is intentionally
+  ignored by Git and is not available in a fresh GitHub Actions checkout.
+- For GitHub Actions, copy the readable text from your resume into a
+  repository secret named `RESUME_TEXT`. Include the skills and work
+  experience you want used for matching; contact details are unnecessary.
+  Supply actual plain text, not a file path, PDF bytes, or base64.
+- Keep `use_resume_skills: true` and the existing `resume_path`. The secret
+  takes precedence over the PDF, so you do not need to publish your resume.
+- If neither source contains readable text, resume-based search fails
+  before fetching jobs. Setting `use_resume_skills: false` is an explicit
+  alternative that uses the configured skills, not your resume.
 
 ### 4. Push this folder to a new GitHub repository
 ```bash
@@ -62,7 +68,7 @@ git push -u origin main
 
 ### 5. Add secrets to the repo
 GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**.
-Add all five:
+Add the five credentials and the resume text:
 | Secret name | Value |
 |---|---|
 | `ADZUNA_APP_ID` | from step 1 |
@@ -70,6 +76,7 @@ Add all five:
 | `EMAIL_ADDRESS` | the Gmail address sending the email |
 | `EMAIL_APP_PASSWORD` | the app password from step 2 |
 | `EMAIL_TO` | the address that should receive the daily update |
+| `RESUME_TEXT` | readable resume text for private resume-based matching |
 
 ### 6. Test it
 Go to the **Actions** tab → "Daily .NET Developer Jobs Update" →
