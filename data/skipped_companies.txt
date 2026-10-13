@@ -92,6 +92,8 @@ Cyient (greenhouse/cyient): HTTP 404
 Photon Interactive (lever/photon): HTTP 404
 Qentelli (lever/qentelli): HTTP 404
 Sarvatra Technologies (lever/sarvatra): HTTP 404
+Salesforce (smartrecruiters/Salesforce): HTTP 400
+ServiceNow (smartrecruiters/ServiceNow): HTTP 400
 Randstad Digital (greenhouse/randstaddigital): HTTP 404
 Tekion (greenhouse/tekion): HTTP 404
 Uplers Hyderabad (lever/uplershyd): HTTP 404
