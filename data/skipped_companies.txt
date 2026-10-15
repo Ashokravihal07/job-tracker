@@ -77,6 +77,7 @@ HashiCorp (greenhouse/hashicorp): HTTP 404
 Plaid (greenhouse/plaid): HTTP 404
 Rippling (greenhouse/rippling): HTTP 404
 Deel (greenhouse/deel): HTTP 404
+Remote (greenhouse/remotecom): HTTP 404
 Grab (greenhouse/grab): HTTP 404
 Gojek (GoTo) (greenhouse/gojek): HTTP 404
 GreyOrange (greenhouse/greyorange): HTTP 404
