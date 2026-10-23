@@ -41,7 +41,7 @@ Games24x7 (lever/games24x7): HTTP 404
 Zepto (lever/zepto): HTTP 404
 Zetwerk (greenhouse/zetwerk): HTTP 404
 Infra.Market (lever/inframarket): HTTP 404
-ElasticRun (lever/elasticrun): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
+ElasticRun (lever/elasticrun): HTTP 404
 Delhivery (greenhouse/delhivery): HTTP 404
 Rapido (lever/rapido): HTTP 404
 Cars24 (greenhouse/cars24): HTTP 404
