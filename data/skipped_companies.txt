@@ -32,7 +32,7 @@ Unacademy (greenhouse/unacademy): HTTP 404
 upGrad (greenhouse/upgrad): HTTP 404
 Simplilearn (greenhouse/simplilearn): HTTP 404
 Cure.fit (cult.fit) (greenhouse/cultfit): HTTP 404
-Rebel Foods (lever/rebelfoods): HTTP 404
+Rebel Foods (lever/rebelfoods): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
 Licious (greenhouse/licious): HTTP 404
 BharatPe (greenhouse/bharatpe): HTTP 404
 MPL (Mobile Premier League) (greenhouse/mpl): HTTP 404
