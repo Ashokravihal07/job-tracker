@@ -83,7 +83,7 @@ GreyOrange (greenhouse/greyorange): HTTP 404
 Locus.sh (lever/locus): HTTP 404
 Course5 Intelligence (lever/course5): HTTP 404
 Skit.ai (greenhouse/skit): HTTP 404
-SirionLabs (lever/sirionlabs): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
+SirionLabs (lever/sirionlabs): HTTP 404
 Josh Technology Group (lever/joshtechnologygroup): HTTP 404
 Median (formerly PubMatic-adjacent) (greenhouse/median): HTTP 404
 Apisero (lever/apisero): HTTP 404
