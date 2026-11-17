@@ -4,7 +4,7 @@ Groww (lever/groww): HTTP 404
 Meesho (greenhouse/meesho): HTTP 404
 Urban Company (lever/urbancompany): HTTP 404
 Chargebee (lever/chargebee): HTTP 404
-Whatfix (lever/whatfix): HTTP 404
+Whatfix (lever/whatfix): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
 MoEngage (greenhouse/moengage): HTTP 404
 CleverTap (greenhouse/clevertap): HTTP 404
 Sprinklr (greenhouse/sprinklr): HTTP 404
