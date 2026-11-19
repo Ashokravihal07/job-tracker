@@ -38,7 +38,7 @@ BharatPe (greenhouse/bharatpe): HTTP 404
 MPL (Mobile Premier League) (greenhouse/mpl): HTTP 404
 Dream11 (greenhouse/dream11): HTTP 404
 Games24x7 (lever/games24x7): HTTP 404
-Zepto (lever/zepto): HTTP 504
+Zepto (lever/zepto): HTTP 404
 Zetwerk (greenhouse/zetwerk): HTTP 404
 Infra.Market (lever/inframarket): HTTP 404
 ElasticRun (lever/elasticrun): HTTP 404
