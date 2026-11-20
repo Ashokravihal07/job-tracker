@@ -13,7 +13,7 @@ Browserstack (lever/browserstack): HTTP 404
 Wingify (lever/wingify): HTTP 404
 Rocketlane (greenhouse/rocketlane): HTTP 404
 Innovaccer (lever/innovaccer): HTTP 404
-Yellow.ai (lever/yellowmessenger): HTTP 404
+Yellow.ai (lever/yellowmessenger): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
 LeadSquared (greenhouse/leadsquared): HTTP 404
 Zeta (greenhouse/zeta): HTTP 404
 Uniphore (greenhouse/uniphore): HTTP 404
@@ -52,10 +52,10 @@ PolicyBazaar (greenhouse/policybazaar): HTTP 404
 Lenskart (greenhouse/lenskart): HTTP 404
 Curefoods (lever/curefoods): HTTP 404
 HackerEarth (lever/hackerearth): HTTP 404
-Uplers (lever/uplers): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
-Deqode (lever/deqode): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
+Uplers (lever/uplers): HTTP 404
+Deqode (lever/deqode): HTTP 404
 Springworks (lever/springworks): HTTP 404
-Zluri (lever/zluri): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
+Zluri (lever/zluri): HTTP 404
 Amagi (greenhouse/amagi): HTTP 404
 Zoho (greenhouse/zoho): HTTP 404
 Ather Energy (greenhouse/atherenergy): HTTP 404
@@ -65,7 +65,7 @@ Swiggy (greenhouse/swiggy): HTTP 404
 PhonePe (greenhouse/phonepe): HTTP 404
 CoinDCX (lever/coindcx): HTTP 404
 CoinSwitch (greenhouse/coinswitch): HTTP 404
-Setu (lever/setu): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
+Setu (lever/setu): HTTP 404
 Open Financial Technologies (lever/open): HTTP 404
 Recko (lever/recko): HTTP 404
 Uni Cards (lever/uni): HTTP 404
