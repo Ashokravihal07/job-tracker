@@ -13,7 +13,7 @@ Browserstack (lever/browserstack): HTTP 404
 Wingify (lever/wingify): HTTP 404
 Rocketlane (greenhouse/rocketlane): HTTP 404
 Innovaccer (lever/innovaccer): HTTP 404
-Yellow.ai (lever/yellowmessenger): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
+Yellow.ai (lever/yellowmessenger): HTTP 404
 LeadSquared (greenhouse/leadsquared): HTTP 404
 Zeta (greenhouse/zeta): HTTP 404
 Uniphore (greenhouse/uniphore): HTTP 404
@@ -67,7 +67,7 @@ CoinDCX (lever/coindcx): HTTP 404
 CoinSwitch (greenhouse/coinswitch): HTTP 404
 Setu (lever/setu): HTTP 404
 Open Financial Technologies (lever/open): HTTP 404
-Recko (lever/recko): HTTP 404
+Recko (lever/recko): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
 Uni Cards (lever/uni): HTTP 404
 KreditBee (greenhouse/kreditbee): HTTP 404
 Notion (greenhouse/notion): HTTP 404
