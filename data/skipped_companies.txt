@@ -106,7 +106,7 @@ CrowdStrike (greenhouse/crowdstrike): HTTP 404
 Dynatrace (greenhouse/dynatrace): HTTP 404
 Splunk (greenhouse/splunk): HTTP 404
 Druva Hyderabad (greenhouse/druvahyd): HTTP 404
-Course5 (lever/course5i): HTTP 502
+Course5 (lever/course5i): HTTP 404
 Straive (lever/straive): HTTP 404
 Indegene (greenhouse/indegene): HTTP 404
 Improzo (lever/improzo): HTTP 404
