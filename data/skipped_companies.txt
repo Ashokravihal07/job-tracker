@@ -63,11 +63,11 @@ Ola Electric (greenhouse/olaelectric): HTTP 404
 Ola Cabs (greenhouse/olacabs): HTTP 404
 Swiggy (greenhouse/swiggy): HTTP 404
 PhonePe (greenhouse/phonepe): HTTP 404
-CoinDCX (lever/coindcx): HTTP 404
+CoinDCX (lever/coindcx): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
 CoinSwitch (greenhouse/coinswitch): HTTP 404
 Setu (lever/setu): HTTP 404
 Open Financial Technologies (lever/open): HTTP 404
-Recko (lever/recko): HTTP 404
+Recko (lever/recko): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
 Uni Cards (lever/uni): HTTP 404
 KreditBee (greenhouse/kreditbee): HTTP 404
 Notion (greenhouse/notion): HTTP 404
@@ -83,7 +83,7 @@ GreyOrange (greenhouse/greyorange): HTTP 404
 Locus.sh (lever/locus): HTTP 404
 Course5 Intelligence (lever/course5): HTTP 404
 Skit.ai (greenhouse/skit): HTTP 404
-SirionLabs (lever/sirionlabs): HTTPSConnectionPool(host='api.lever.co', port=443): Read timed out. (read timeout=15)
+SirionLabs (lever/sirionlabs): HTTP 404
 Josh Technology Group (lever/joshtechnologygroup): HTTP 404
 Median (formerly PubMatic-adjacent) (greenhouse/median): HTTP 404
 Apisero (lever/apisero): HTTP 404
